@@ -24,16 +24,18 @@ public class SequencePanel extends JPanel{
 
 		Graphics2D g2d = (Graphics2D) g;
 
-		String abc = "abc";
+		String abc = "a";
 		g2d.drawString(abc, 0, 20);
 		FontMetrics fm = g.getFontMetrics();
 		Rectangle2D rec = fm.getStringBounds(abc, g2d);
 		g2d.drawRect(0, 30, (int) rec.getWidth(), (int) rec.getHeight());
+		System.out.println("a,width:" + rec.getWidth() + ",height:" + rec.getHeight());
 
-		String test = "中文字符串测试";
+		String test = "中服务不可用修复数据\n这是一个测试消息";
 		g2d.drawString(test, 0, 70);
 		rec = fm.getStringBounds(test, g2d);
 		g2d.drawRect(0, 90, (int) rec.getWidth(), (int) rec.getHeight());
+		System.out.println("t,width:" + rec.getWidth() + ",height:" + rec.getHeight());
 
 	}
 

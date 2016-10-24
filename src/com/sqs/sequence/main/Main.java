@@ -1,51 +1,43 @@
 package com.sqs.sequence.main;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JTextArea;
+
 public class Main {
 
 	public static void main(String[] args) {
-		/**
-		 * JFrame frame = new JFrame("xxx");
-		 * frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		 * frame.setLocation(400, 200);
-		 * 
-		 * frame.setLayout(new BorderLayout());
-		 * 
-		 * JPanel left = new JPanel(); left.setPreferredSize(new Dimension(300,
-		 * 200)); JPanel right = new JPanel(); right.setPreferredSize(new
-		 * Dimension(200, 320));
-		 * 
-		 * left.setLayout(new BorderLayout()); JPanel left_1 = new JPanel();
-		 * left_1.setPreferredSize(new Dimension(300, 300));
-		 * left_1.setBackground(Color.RED);
-		 * 
-		 * JPanel left_2 = new JPanel(); left_2.setPreferredSize(new
-		 * Dimension(300, 100)); left_2.setBackground(Color.GREEN);
-		 * 
-		 * left.add(left_1, BorderLayout.CENTER); left.add(left_2,
-		 * BorderLayout.SOUTH);
-		 * 
-		 * right.setLayout(new BorderLayout()); JPanel right_1 = new JPanel();
-		 * right_1.setBackground(Color.WHITE); right_1.setPreferredSize(new
-		 * Dimension(200, 100));
-		 * 
-		 * JPanel right_2 = new JPanel(); right_2.setBackground(Color.BLUE);
-		 * right_2.setPreferredSize(new Dimension(200, 100));
-		 * 
-		 * JPanel right_3 = new JPanel(); right_3.setBackground(Color.BLACK);
-		 * right_3.setPreferredSize(new Dimension(200, 120));
-		 * 
-		 * right.add(right_1, BorderLayout.NORTH); right.add(right_2,
-		 * BorderLayout.CENTER); right.add(right_3, BorderLayout.SOUTH);
-		 * 
-		 * frame.add(left, BorderLayout.NORTH); frame.add(right,
-		 * BorderLayout.CENTER);
-		 * 
-		 * frame.setVisible(true); frame.pack();
-		 **/
+		JFrame jFrame = new JFrame("JtextArea");
 
-		MainFrame mainFrame = new MainFrame("test");
-		mainFrame.setVisible(true);
-		mainFrame.pack();
+		JTextArea textArea = new JTextArea(10, 30);
+		jFrame.getContentPane().setLayout(null);
+		textArea.setBounds(10, 10, 100, 100);
+
+		jFrame.getContentPane().add(textArea);
+		jFrame.setSize(200, 200);
+
+		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		jFrame.setVisible(true);
+		// jFrame.pack();
+		
+		JButton button = new JButton("Get");
+		button.setBounds(10, 120, 30, 30);
+		button.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String text = textArea.getText();
+
+				System.out.println(Arrays.asList(text.split("\n")));
+			}
+		});
+		
+		jFrame.getContentPane().add(button);
 	}
 
 }
