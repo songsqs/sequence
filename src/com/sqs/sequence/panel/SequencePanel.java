@@ -5,9 +5,15 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import com.sqs.sequence.bean.LifelineBean;
+import com.sqs.sequence.bean.ObjectBean;
+import com.sqs.sequence.server.Parser;
+import com.sqs.sequence.utils.Pair;
 
 public class SequencePanel extends JPanel{
 
@@ -56,6 +62,18 @@ public class SequencePanel extends JPanel{
 		jf.add(sp);
 		jf.setVisible(true);
 		jf.pack();
+
+		Parser parser = new Parser();
+		String testInput = "A->B:text\nA-->A:aaaaa\nB->C:中文测试";
+		Pair<List<ObjectBean>, List<LifelineBean>> pair = parser.parse((Graphics2D) sp.getGraphics(),
+				testInput);
+		for (ObjectBean objectBean : pair.getFirst()) {
+			System.out.println(objectBean);
+		}
+		System.out.println("-------------------");
+		for (LifelineBean lifelineBean : pair.getSecond()) {
+			System.out.println(lifelineBean);
+		}
 	}
 
 }

@@ -58,6 +58,11 @@ public class ObjectBean {
 	 */
 	private int lineLength;
 
+	/**
+	 * 对象出现的顺序
+	 */
+	private int order;
+
 	public String getText() {
 		return text;
 	}
@@ -138,18 +143,19 @@ public class ObjectBean {
 		this.lineLength = lineLength;
 	}
 
+	public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + height;
-		result = prime * result + lineLength;
-		result = prime * result + lineX;
-		result = prime * result + lineY;
 		result = prime * result + ((text == null) ? 0 : text.hashCode());
-		result = prime * result + width;
-		result = prime * result + x;
-		result = prime * result + y;
 		return result;
 	}
 
@@ -162,26 +168,41 @@ public class ObjectBean {
 		if (getClass() != obj.getClass())
 			return false;
 		ObjectBean other = (ObjectBean) obj;
-		if (height != other.height)
-			return false;
-		if (lineLength != other.lineLength)
-			return false;
-		if (lineX != other.lineX)
-			return false;
-		if (lineY != other.lineY)
-			return false;
 		if (text == null) {
 			if (other.text != null)
 				return false;
 		} else if (!text.equals(other.text))
 			return false;
-		if (width != other.width)
-			return false;
-		if (x != other.x)
-			return false;
-		if (y != other.y)
-			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ObjectBean [text=");
+		builder.append(text);
+		builder.append(", x=");
+		builder.append(x);
+		builder.append(", y=");
+		builder.append(y);
+		builder.append(", width=");
+		builder.append(width);
+		builder.append(", height=");
+		builder.append(height);
+		builder.append(", textX=");
+		builder.append(textX);
+		builder.append(", textY=");
+		builder.append(textY);
+		builder.append(", lineX=");
+		builder.append(lineX);
+		builder.append(", lineY=");
+		builder.append(lineY);
+		builder.append(", lineLength=");
+		builder.append(lineLength);
+		builder.append(", order=");
+		builder.append(order);
+		builder.append("]");
+		return builder.toString();
 	}
 
 }

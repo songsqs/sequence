@@ -2,6 +2,7 @@ package com.sqs.sequence.server;
 
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 import com.sqs.sequence.bean.LifelineBean;
 import com.sqs.sequence.bean.ObjectBean;
+import com.sqs.sequence.enums.PositionEnum;
 import com.sqs.sequence.utils.Pair;
 
 public class Parser {
@@ -47,7 +49,7 @@ public class Parser {
 	 */
 	public Pair<List<ObjectBean>, List<LifelineBean>> parse(Graphics2D graphics2d, String input) {
 
-		return null;
+		return this.parse(graphics2d, input, true);
 	}
 
 	/**
@@ -73,9 +75,32 @@ public class Parser {
 		Map<String, ObjectBean> objectBeanMap = new HashMap<>();
 		List<ObjectBean> objectBeanList = new ArrayList<>();
 		List<LifelineBean> lifelineBeanList = new ArrayList<>();
+
+		parsePhase1(graphics2d, input, objectBeanMap, objectBeanList, lifelineBeanList, ignoreError);
+
+		Pair<List<ObjectBean>, List<LifelineBean>> result = new Pair<>();
+		result.setFirst(objectBeanList);
+		result.setSecond(lifelineBeanList);
+		return result;
+	}
+
+	/**
+	 * 第一阶段解析
+	 * 
+	 * @param graphics2d
+	 * @param input
+	 * @param objectBeanMap
+	 * @param lifelineBeanList
+	 * @param lifelineBeanlist
+	 */
+	private void parsePhase1(Graphics2D graphics2d, String input, Map<String, ObjectBean> objectBeanMap,
+			List<ObjectBean> objectBeanList,
+			List<LifelineBean> lifelineBeanList, boolean ignoreError) {
+
 		FontMetrics fm = graphics2d.getFontMetrics();
 
 		String[] lines = input.split("\n");
+		int order = 0;
 		for (String lineT : lines) {
 			if (lineT.contains(":") == false) {
 				if (ignoreError == false) {
@@ -88,10 +113,87 @@ public class Parser {
 				if (ignoreError == false) {
 					throw new RuntimeException("Bad pattern in:" + lineT);
 				}
+				continue;
 			}
-		}
 
-		return null;
+			LifelineBean lifelineBean = new LifelineBean();
+			lifelineBean.setText(pair[1]);
+			String[] beanNames;
+
+			if (pair[0].contains("-->")) {
+				// lifelineBean.setTrianglePosition(PositionEnum.END);
+				beanNames = pair[0].split("-->");
+			} else if (pair[0].contains("->")) {
+				// lifelineBean.setTrianglePosition(PositionEnum.HEAD);
+				beanNames = pair[0].split("->");
+			} else {
+				if (ignoreError == false) {
+					throw new RuntimeException("Bad pattern in:" + lineT);
+				}
+				continue;
+			}
+
+			if (beanNames.length != 2) {
+				if (ignoreError == false) {
+					throw new RuntimeException("Bad pattern in:" + lineT);
+				}
+				continue;
+			}
+
+			if (beanNames[0].equals(beanNames[1])) {
+				if (objectBeanMap.containsKey(beanNames[0]) == false) {
+					ObjectBean objectBean = new ObjectBean();
+					objectBean.setText(beanNames[0]);
+					objectBean.setOrder(order++);
+					objectBeanMap.put(beanNames[0], objectBean);
+					objectBeanList.add(objectBean);
+					initObjectBean(objectBean, fm, graphics2d);
+				}
+				lifelineBean.setFrom(objectBeanMap.get(beanNames[0]));
+				lifelineBean.setTo(objectBeanMap.get(beanNames[0]));
+				lifelineBean.setTrianglePosition(PositionEnum.HEAD);
+			} else {
+				if (objectBeanMap.containsKey(beanNames[0]) == false) {
+					ObjectBean objectBean = new ObjectBean();
+					objectBean.setText(beanNames[0]);
+					objectBean.setOrder(order++);
+					objectBeanMap.put(beanNames[0], objectBean);
+					objectBeanList.add(objectBean);
+					initObjectBean(objectBean, fm, graphics2d);
+				}
+				if (objectBeanMap.containsKey(beanNames[1]) == false) {
+					ObjectBean objectBean = new ObjectBean();
+					objectBean.setText(beanNames[1]);
+					objectBean.setOrder(order++);
+					objectBeanMap.put(beanNames[1], objectBean);
+					objectBeanList.add(objectBean);
+					initObjectBean(objectBean, fm, graphics2d);
+				}
+				lifelineBean.setFrom(objectBeanMap.get(beanNames[0]));
+				lifelineBean.setTo(objectBeanMap.get(beanNames[1]));
+				if (lifelineBean.getFrom().getOrder() < lifelineBean.getTo().getOrder()) {
+					lifelineBean.setTrianglePosition(PositionEnum.END);
+				} else {
+					lifelineBean.setTrianglePosition(PositionEnum.HEAD);
+				}
+			}
+			lifelineBeanList.add(lifelineBean);
+		}
+	}
+
+	/**
+	 * 初始化ObjectBean,设置width和height
+	 * 
+	 * @param objectBean
+	 * @param fm
+	 * @param graphics2d
+	 */
+	private void initObjectBean(ObjectBean objectBean, FontMetrics fm, Graphics2D graphics2d) {
+		Rectangle2D rec = fm.getStringBounds(objectBean.getText(), graphics2d);
+		int stringWidth = (int) rec.getWidth();
+		int stringHeight = (int) rec.getHeight();
+		objectBean.setWidth(objectbean_padding_left + stringWidth + objectbean_padding_right);
+		objectBean.setHeight(objectbean_padding_top + stringHeight + objectbean_padding_bottom);
 	}
 
 	public int getObjectbean_padding_left() {

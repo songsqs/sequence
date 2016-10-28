@@ -247,4 +247,11 @@ public class LifelineBean {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "LifelineBean [text=" + text + ", startX=" + startX + ", startY=" + startY + ", endX=" + endX + ", endY="
+				+ endY + ", textX=" + textX + ", textY=" + textY + ", width=" + width + ", height=" + height + ", from="
+				+ from + ", to=" + to + ", type=" + type + ", trianglePosition=" + trianglePosition + "]";
+	}
+
 }
