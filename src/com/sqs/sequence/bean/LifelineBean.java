@@ -57,6 +57,11 @@ public class LifelineBean {
 	private int height;
 
 	/**
+	 * text占用的高度
+	 */
+	private int textHeight;
+
+	/**
 	 * 生命线起始对象
 	 */
 	private ObjectBean from;
@@ -146,6 +151,14 @@ public class LifelineBean {
 
 	public void setHeight(int height) {
 		this.height = height;
+	}
+
+	public int getTextHeight() {
+		return textHeight;
+	}
+
+	public void setTextHeight(int textHeight) {
+		this.textHeight = textHeight;
 	}
 
 	public ObjectBean getFrom() {
