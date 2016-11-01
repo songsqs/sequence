@@ -40,7 +40,7 @@ public class Parser {
 	private final static int LIFELINEBEAN_DEFAULT_PADDING_LEFT = 10;
 	private final static int LIFELINEBEAN_DEFAULT_PADDING_RIGHT = 10;
 	private final static int LIFELINEBEAN_DEFAULT_PADDING_TOP = 10;
-	private final static int LIFELINEBEAN_DEFAULT_PADDING_BOTTOM = 10;
+	private final static int LIFELINEBEAN_DEFAULT_PADDING_BOTTOM = 0;
 	private final static int LIFELINEBEAN_DEFAULT_WIDTH_WHEN_CIRCLE = 20;
 
 	// LifelineBean的padding
@@ -269,12 +269,12 @@ public class Parser {
 	private void parsePhase2(List<LifelineBean> lifelineBeanList, List<ObjectBean> objectBeanList) {
 		// 用于存储A->B类型的距离
 		Map<Pair<ObjectBean, ObjectBean>, Integer> distanceMap = new HashMap<>();
-		// 用于存储A-A类型的距离
+		// 用于存储A->A类型的距离
 		Map<ObjectBean, Integer> widthMap = new HashMap<>();
 
 		for (LifelineBean lifelineBeanT : lifelineBeanList) {
 			if (lifelineBeanT.getFrom().equals(lifelineBeanT.getTo())) {
-				int circleWidth = lifelineBeanT.getWidth() - lifelineBeanT.getFrom().getWidth() / 2;
+				int circleWidth = lifelineBeanT.getWidth();
 				if (widthMap.get(lifelineBeanT.getFrom()) == null
 						|| widthMap.get(lifelineBeanT.getFrom()).intValue() < circleWidth) {
 					widthMap.put(lifelineBeanT.getFrom(), circleWidth);
@@ -384,8 +384,8 @@ public class Parser {
 				lifelinebeanT.setStartX(lifelinebeanT.getFrom().getLineX());
 				lifelinebeanT.setTextX(lifelinebean_width_when_circle + lifelinebeanT.getStartX());
 				lifelinebeanT.setTextY(lifelinebeanT.getStartY() + lifelinebean_padding_top);
-				lifelinebeanT.setEndX(-1);
-				lifelinebeanT.setEndY(-1);
+				lifelinebeanT.setEndX(lifelinebeanT.getStartX() + lifelinebean_width_when_circle);
+				lifelinebeanT.setEndY(lifelinebeanT.getStartY() + lifelinebeanT.getHeight());
 
 				height += lifelinebeanT.getHeight();
 			} else {
