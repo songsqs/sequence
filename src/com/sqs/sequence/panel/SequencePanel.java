@@ -1,10 +1,8 @@
 package com.sqs.sequence.panel;
 
 import java.awt.Dimension;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -12,6 +10,7 @@ import javax.swing.JPanel;
 
 import com.sqs.sequence.bean.LifelineBean;
 import com.sqs.sequence.bean.ObjectBean;
+import com.sqs.sequence.enums.LifelineTypeEnum;
 import com.sqs.sequence.server.Parser;
 import com.sqs.sequence.utils.Pair;
 
@@ -24,25 +23,81 @@ public class SequencePanel extends JPanel{
 
 	private String text;
 
+	private final static Parser PARSER = new Parser();
+
+	private volatile List<ObjectBean> objectBeanList;
+	private volatile List<LifelineBean> lifelineBeanList;
+
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
 
 		Graphics2D g2d = (Graphics2D) g;
+		//
+		// String abc = "a";
+		// g2d.drawString(abc, 0, 20);
+		// FontMetrics fm = g.getFontMetrics();
+		// Rectangle2D rec = fm.getStringBounds(abc, g2d);
+		// g2d.drawRect(0, 30, (int) rec.getWidth(), (int) rec.getHeight());
+		// System.out.println("a,width:" + rec.getWidth() + ",height:" +
+		// rec.getHeight());
+		//
+		// String test = "中服务不可用修复数据\n这是一个测试消息";
+		// g2d.drawString(test, 0, 70);
+		// rec = fm.getStringBounds(test, g2d);
+		// g2d.drawRect(0, 90, (int) rec.getWidth(), (int) rec.getHeight());
+		// System.out.println("t,width:" + rec.getWidth() + ",height:" +
+		// rec.getHeight());
 
-		String abc = "a";
-		g2d.drawString(abc, 0, 20);
-		FontMetrics fm = g.getFontMetrics();
-		Rectangle2D rec = fm.getStringBounds(abc, g2d);
-		g2d.drawRect(0, 30, (int) rec.getWidth(), (int) rec.getHeight());
-		System.out.println("a,width:" + rec.getWidth() + ",height:" + rec.getHeight());
+		if (objectBeanList == null || lifelineBeanList == null) {
+			return;
+		}
 
-		String test = "中服务不可用修复数据\n这是一个测试消息";
-		g2d.drawString(test, 0, 70);
-		rec = fm.getStringBounds(test, g2d);
-		g2d.drawRect(0, 90, (int) rec.getWidth(), (int) rec.getHeight());
-		System.out.println("t,width:" + rec.getWidth() + ",height:" + rec.getHeight());
+		drawSequenceFromBeans(g2d, objectBeanList, lifelineBeanList);
+	}
 
+	public void drawSequence(String text){
+		this.objectBeanList = null;
+		this.lifelineBeanList = null;
+		Pair<List<ObjectBean>, List<LifelineBean>> pair = PARSER.parse((Graphics2D) this.getGraphics(), text);
+		this.objectBeanList = pair.getFirst();
+		this.lifelineBeanList = pair.getSecond();
+		repaint();
+	}
+
+	private void drawSequenceFromBeans(Graphics2D graphics2d, List<ObjectBean> objectBeans,
+			List<LifelineBean> lifelineBeans) {
+		// draw objectbeans
+		for (ObjectBean objectBeanT : objectBeans) {
+			graphics2d.drawRect(objectBeanT.getX(), objectBeanT.getY(), objectBeanT.getWidth(),
+					objectBeanT.getHeight());
+			graphics2d.drawString(objectBeanT.getText(), objectBeanT.getTextX(), objectBeanT.getTextY());
+
+			// draw line TODO:把line的计算放到parser中
+			graphics2d.drawLine(objectBeanT.getLineX(), objectBeanT.getLineY(), objectBeanT.getLineX(),
+					objectBeanT.getLineY() + objectBeanT.getLineLength());
+
+			// draw end rec
+			graphics2d.drawRect(objectBeanT.getX(),
+					objectBeanT.getY() + objectBeanT.getLineLength() + objectBeanT.getHeight(), objectBeanT.getWidth(),
+					objectBeanT.getHeight());
+
+			// draw end string
+			graphics2d.drawString(objectBeanT.getText(), objectBeanT.getTextX(),
+					objectBeanT.getTextY() + objectBeanT.getLineLength() + objectBeanT.getHeight());
+		}
+
+		// draw lifelinebeans
+		for (LifelineBean lifelineBeanT : lifelineBeans) {
+			// 实线
+			if (LifelineTypeEnum.SOLID_LINE.equals(lifelineBeanT.getType())) {
+				graphics2d.drawLine(lifelineBeanT.getStartX(), lifelineBeanT.getStartY(), lifelineBeanT.getEndX(),
+						lifelineBeanT.getEndY());
+			} else {
+				graphics2d.drawLine(lifelineBeanT.getStartX(), lifelineBeanT.getStartY(), lifelineBeanT.getEndX(),
+						lifelineBeanT.getEndY());
+			}
+		}
 	}
 
 	public String getText() {
@@ -74,6 +129,8 @@ public class SequencePanel extends JPanel{
 		for (LifelineBean lifelineBean : pair.getSecond()) {
 			System.out.println(lifelineBean);
 		}
+
+		sp.drawSequence(testInput);
 	}
 
 }

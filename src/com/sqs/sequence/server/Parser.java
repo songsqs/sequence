@@ -27,8 +27,8 @@ public class Parser {
 	// ObjectBean的默认padding
 	private final static int OBJECTBEAN_DEFAULT_PADDING_LEFT = 10;
 	private final static int OBJECTBEAN_DEFAULT_PADDING_RIGHT = 10;
-	private final static int OBJECTBEAN_DEFAULT_PADDING_TOP = 10;
-	private final static int OBJECTBEAN_DEFAULT_PADDING_BOTTOM = 10;
+	private final static int OBJECTBEAN_DEFAULT_PADDING_TOP = 20;
+	private final static int OBJECTBEAN_DEFAULT_PADDING_BOTTOM = 0;
 
 	// ObjectBean的padding
 	private int objectbean_padding_left = OBJECTBEAN_DEFAULT_PADDING_LEFT;
