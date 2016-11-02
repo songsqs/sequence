@@ -84,7 +84,7 @@ public class SequencePanel extends JPanel{
 					objectBeanT.getHeight());
 			graphics2d.drawString(objectBeanT.getText(), objectBeanT.getTextX(), objectBeanT.getTextY());
 
-			// draw line TODO:把line的计算放到parser中
+			// draw line
 			graphics2d.drawLine(objectBeanT.getLineX(), objectBeanT.getLineY(), objectBeanT.getLineX(),
 					objectBeanT.getLineY() + objectBeanT.getLineLength());
 
