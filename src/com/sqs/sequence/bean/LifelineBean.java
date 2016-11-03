@@ -57,6 +57,11 @@ public class LifelineBean {
 	private int height;
 
 	/**
+	 * text占用宽度
+	 */
+	private int textWidth;
+
+	/**
 	 * text占用的高度
 	 */
 	private int textHeight;
@@ -153,6 +158,14 @@ public class LifelineBean {
 		this.height = height;
 	}
 
+	public int getTextWidth() {
+		return textWidth;
+	}
+
+	public void setTextWidth(int textWidth) {
+		this.textWidth = textWidth;
+	}
+
 	public int getTextHeight() {
 		return textHeight;
 	}
@@ -204,6 +217,8 @@ public class LifelineBean {
 		result = prime * result + startX;
 		result = prime * result + startY;
 		result = prime * result + ((text == null) ? 0 : text.hashCode());
+		result = prime * result + textHeight;
+		result = prime * result + textWidth;
 		result = prime * result + textX;
 		result = prime * result + textY;
 		result = prime * result + ((to == null) ? 0 : to.hashCode());
@@ -242,6 +257,10 @@ public class LifelineBean {
 				return false;
 		} else if (!text.equals(other.text))
 			return false;
+		if (textHeight != other.textHeight)
+			return false;
+		if (textWidth != other.textWidth)
+			return false;
 		if (textX != other.textX)
 			return false;
 		if (textY != other.textY)
@@ -262,9 +281,39 @@ public class LifelineBean {
 
 	@Override
 	public String toString() {
-		return "LifelineBean [text=" + text + ", startX=" + startX + ", startY=" + startY + ", endX=" + endX + ", endY="
-				+ endY + ", textX=" + textX + ", textY=" + textY + ", width=" + width + ", height=" + height + ", from="
-				+ from + ", to=" + to + ", type=" + type + ", trianglePosition=" + trianglePosition + "]";
+		StringBuilder builder = new StringBuilder();
+		builder.append("LifelineBean [text=");
+		builder.append(text);
+		builder.append(", startX=");
+		builder.append(startX);
+		builder.append(", startY=");
+		builder.append(startY);
+		builder.append(", endX=");
+		builder.append(endX);
+		builder.append(", endY=");
+		builder.append(endY);
+		builder.append(", textX=");
+		builder.append(textX);
+		builder.append(", textY=");
+		builder.append(textY);
+		builder.append(", width=");
+		builder.append(width);
+		builder.append(", height=");
+		builder.append(height);
+		builder.append(", textWidth=");
+		builder.append(textWidth);
+		builder.append(", textHeight=");
+		builder.append(textHeight);
+		builder.append(", from=");
+		builder.append(from);
+		builder.append(", to=");
+		builder.append(to);
+		builder.append(", type=");
+		builder.append(type);
+		builder.append(", trianglePosition=");
+		builder.append(trianglePosition);
+		builder.append("]");
+		return builder.toString();
 	}
 
 }

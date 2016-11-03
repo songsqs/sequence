@@ -43,6 +43,11 @@ public class MainFrame extends JFrame{
 
 	private MenuListener menuListener = new MenuListener();
 
+	// scale
+	private static final double[] SCALE = { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5,
+			1.6, 1.7, 1.8, 1.9, 2.0 };
+	private int currentScaleIndex = 9;
+
 	public MainFrame(String title){
 		super(title);
 		
@@ -76,21 +81,38 @@ public class MainFrame extends JFrame{
 
 	private void addMenu() {
 		menuBar = new MenuBar();
-		Menu menu = new Menu("File");
+		Menu fileMenu = new Menu("File");
 
 		// save
 		MenuShortcut saveMenuShorcut = new MenuShortcut(KeyEvent.VK_S, false);
 		MenuItem saveMenuItem = new MenuItem("Save", saveMenuShorcut);
 		saveMenuItem.addActionListener(menuListener);
-		menu.add(saveMenuItem);
+		fileMenu.add(saveMenuItem);
 
 		// open
-		MenuShortcut openMenuShotcut = new MenuShortcut(KeyEvent.VK_O, false);
-		MenuItem openMenuItem = new MenuItem("Open", openMenuShotcut);
+		MenuShortcut openMenuShortcut = new MenuShortcut(KeyEvent.VK_O, false);
+		MenuItem openMenuItem = new MenuItem("Open", openMenuShortcut);
 		openMenuItem.addActionListener(menuListener);
-		menu.add(openMenuItem);
+		fileMenu.add(openMenuItem);
 
-		menuBar.add(menu);
+		Menu viewMenu = new Menu("View");
+
+		// zoom in
+		MenuShortcut zoomInMenuShortcut = new MenuShortcut(KeyEvent.VK_MINUS, false);
+		MenuItem zoomInMenuItem = new MenuItem("Zoom In", zoomInMenuShortcut);
+		zoomInMenuItem.setActionCommand("ZoomIn");
+		zoomInMenuItem.addActionListener(menuListener);
+		viewMenu.add(zoomInMenuItem);
+
+		// zoom out
+		MenuShortcut zoomOutMenuShortcut = new MenuShortcut(KeyEvent.VK_EQUALS, false);
+		MenuItem zoomOutMenuItem = new MenuItem("Zoom Out", zoomOutMenuShortcut);
+		zoomOutMenuItem.setActionCommand("ZoomOut");
+		zoomOutMenuItem.addActionListener(menuListener);
+		viewMenu.add(zoomOutMenuItem);
+
+		menuBar.add(fileMenu);
+		menuBar.add(viewMenu);
 
 		this.setMenuBar(menuBar);
 	}
@@ -169,6 +191,24 @@ public class MainFrame extends JFrame{
 				} catch (Exception e2) {
 					e2.printStackTrace();
 				}
+			} else if (e.getActionCommand().equals("ZoomIn")) {
+				System.out.println("Zoom In");
+				currentScaleIndex--;
+				if (currentScaleIndex < 0) {
+					currentScaleIndex = 0;
+				}
+				System.out.println(currentScaleIndex);
+				MainFrame.this.sequencePanel.setTransform(SCALE[currentScaleIndex], SCALE[currentScaleIndex]);
+				MainFrame.this.sequencePanel.repaint();
+			} else if (e.getActionCommand().equals("ZoomOut")) {
+				System.out.println("Zoom Out");
+				currentScaleIndex++;
+				if (currentScaleIndex >= SCALE.length) {
+					currentScaleIndex = SCALE.length - 1;
+				}
+				System.out.println(currentScaleIndex);
+				MainFrame.this.sequencePanel.setTransform(SCALE[currentScaleIndex], SCALE[currentScaleIndex]);
+				MainFrame.this.sequencePanel.repaint();
 			}
 		}
 

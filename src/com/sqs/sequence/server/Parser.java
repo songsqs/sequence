@@ -35,6 +35,7 @@ public class Parser {
 	private int objectbean_padding_right = OBJECTBEAN_DEFAULT_PADDING_RIGHT;
 	private int objectbean_padding_top = OBJECTBEAN_DEFAULT_PADDING_TOP;
 	private int objectbean_padding_bottom = OBJECTBEAN_DEFAULT_PADDING_BOTTOM;
+	private int objectbean_padding = 10;
 
 	// LifelineBean的默认padding
 	private final static int LIFELINEBEAN_DEFAULT_PADDING_LEFT = 10;
@@ -99,7 +100,7 @@ public class Parser {
 			if (ignoreError == false) {
 				throw new RuntimeException("input can't be null");
 			}
-			return null;
+			return new Pair<>();
 		}
 
 		Map<String, ObjectBean> objectBeanMap = new HashMap<>();
@@ -109,6 +110,12 @@ public class Parser {
 		parsePhase1(graphics2d, input, objectBeanMap, objectBeanList, lifelineBeanList, ignoreError);
 
 		parsePhase2(lifelineBeanList, objectBeanList);
+
+		parsePhase3(objectBeanList);
+
+		parsePhase4(lifelineBeanList, objectBeanList);
+
+		parsePhase5(objectBeanList);
 
 		parsePhase3(objectBeanList);
 
@@ -238,7 +245,7 @@ public class Parser {
 	/**
 	 * 初始化LifelineBean<br>
 	 * 设置width和height<br>
-	 * 设置textHeight
+	 * 设置textWidth textHeight
 	 * 
 	 * @param lifelineBean
 	 * @param fm
@@ -255,11 +262,13 @@ public class Parser {
 			lifelineBean.setWidth(lifelinebean_padding_left + stringWidth + lifelinebean_padding_right);
 			lifelineBean.setHeight(lifelinebean_padding_top + stringHeight + lifelinebean_padding_bottom);
 		}
+		lifelineBean.setTextWidth(stringWidth);
 		lifelineBean.setTextHeight(stringHeight);
 	}
 
 	/**
 	 * 第二阶段解析<br>
+	 * 通过ObjectBean修正LifelineBean的width<br>
 	 * 通过LifelineBean设置ObjectBean的间隔<br>
 	 * 同时设置ObjectBean的x,y坐标
 	 * 
@@ -267,6 +276,20 @@ public class Parser {
 	 * @param objectBeanList
 	 */
 	private void parsePhase2(List<LifelineBean> lifelineBeanList, List<ObjectBean> objectBeanList) {
+		// 通过ObjectBean修正LifelineBean的width
+		for (LifelineBean lifelineBeanT : lifelineBeanList) {
+			if (lifelineBeanT.getFrom().equals(lifelineBeanT.getTo())) {
+				// 指向自己的线不处理
+				continue;
+			}
+
+			int newWidth = lifelineBeanT.getTextWidth() + lifelineBeanT.getFrom().getWidth() / 2
+					+ lifelineBeanT.getTo().getWidth() / 2;
+			if (newWidth > lifelineBeanT.getWidth()) {
+				lifelineBeanT.setWidth(newWidth);
+			}
+		}
+
 		// 用于存储A->B类型的距离
 		Map<Pair<ObjectBean, ObjectBean>, Integer> distanceMap = new HashMap<>();
 		// 用于存储A->A类型的距离
@@ -400,7 +423,9 @@ public class Parser {
 					lifelinebeanT.setEndX(lifelinebeanT.getFrom().getLineX());
 				}
 				lifelinebeanT.setEndY(height);
-				lifelinebeanT.setTextX(lifelinebeanT.getStartX() + lifelinebean_padding_left);
+				int textX = (lifelinebeanT.getEndX() - lifelinebeanT.getStartX() - lifelinebeanT.getTextWidth()) / 2
+						+ lifelinebeanT.getStartX();
+				lifelinebeanT.setTextX(textX);
 				lifelinebeanT.setTextY(lifelinebeanT.getStartY() - lifelinebeanT.getTextHeight());
 			}
 
@@ -411,6 +436,35 @@ public class Parser {
 			objectBeanT.setLineLength(height - objectBeanHeight);
 		}
 
+	}
+
+	/**
+	 * 第五阶段解析<br>
+	 * 修正ObjectBean的x坐标<br>
+	 * 解决A->B A->C的情况下x坐标不正确的问题
+	 * 
+	 * @param objectBeanList
+	 */
+	private void parsePhase5(List<ObjectBean> objectBeanList) {
+		if (objectBeanList.size() < 2) {
+			// 只有一个ObjectBean
+			return;
+		}
+		List<ObjectBean> tempObjectBeanList = new ArrayList<>(objectBeanList);
+		Collections.sort(tempObjectBeanList, new ObjectBeanComparator());
+		ObjectBean preObjectBean = tempObjectBeanList.get(0);
+		for (int i = 1; i < tempObjectBeanList.size(); i++) {
+			ObjectBean objectBeanT = tempObjectBeanList.get(i);
+			if (objectBeanT.getX() > preObjectBean.getX() + preObjectBean.getWidth()) {
+				preObjectBean = objectBeanT;
+				continue;
+			}
+
+			objectBeanT.setX(preObjectBean.getX() + preObjectBean.getWidth() + objectbean_padding);
+			objectBeanT.setTextX(objectBeanT.getX() + objectbean_padding_left);
+			objectBeanT.setTextY(objectBeanT.getY() + objectbean_padding_top);
+			preObjectBean = objectBeanT;
+		}
 	}
 
 	public int getObjectbean_padding_left() {
@@ -493,6 +547,15 @@ public class Parser {
 				return o1.getFirst().getOrder() - o2.getFirst().getOrder();
 			}
 			return o1.getSecond().getOrder() - o2.getSecond().getOrder();
+		}
+
+	}
+
+	private class ObjectBeanComparator implements Comparator<ObjectBean> {
+
+		@Override
+		public int compare(ObjectBean o1, ObjectBean o2) {
+			return o1.getOrder() - o2.getOrder();
 		}
 
 	}

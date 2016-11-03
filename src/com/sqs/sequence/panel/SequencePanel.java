@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -36,6 +37,20 @@ public class SequencePanel extends JPanel{
 
 	private int triangleLength = DEFAULT_TRIANGLE_LENGTH;
 
+	private AffineTransform transform;
+	private double scaleX = 1.0;
+	private double scaleY = 1.0;
+
+	// width height
+	public static final int DEFAULT_WIDTH = 600;
+	public static final int DEFAULT_HEIGHT = 200;
+
+	private int width = DEFAULT_WIDTH;
+	private int height = DEFAULT_HEIGHT;
+
+	// font size
+	private int defaultFontSize = 12;
+
 	private volatile List<ObjectBean> objectBeanList;
 	private volatile List<LifelineBean> lifelineBeanList;
 
@@ -44,27 +59,17 @@ public class SequencePanel extends JPanel{
 		super.paint(g);
 
 		Graphics2D g2d = (Graphics2D) g;
-		//
-		// String abc = "a";
-		// g2d.drawString(abc, 0, 20);
-		// FontMetrics fm = g.getFontMetrics();
-		// Rectangle2D rec = fm.getStringBounds(abc, g2d);
-		// g2d.drawRect(0, 30, (int) rec.getWidth(), (int) rec.getHeight());
-		// System.out.println("a,width:" + rec.getWidth() + ",height:" +
-		// rec.getHeight());
-		//
-		// String test = "中服务不可用修复数据\n这是一个测试消息";
-		// g2d.drawString(test, 0, 70);
-		// rec = fm.getStringBounds(test, g2d);
-		// g2d.drawRect(0, 90, (int) rec.getWidth(), (int) rec.getHeight());
-		// System.out.println("t,width:" + rec.getWidth() + ",height:" +
-		// rec.getHeight());
+		// if (transform != null) {
+		// g2d.setTransform(transform);
+		// }
 
 		if (objectBeanList == null || lifelineBeanList == null) {
 			return;
 		}
 
 		drawSequenceFromBeans(g2d, objectBeanList, lifelineBeanList);
+
+		System.out.println("Sequence widht:" + width + ",height:" + height);
 	}
 
 	public void drawSequence(String text){
@@ -73,7 +78,35 @@ public class SequencePanel extends JPanel{
 		Pair<List<ObjectBean>, List<LifelineBean>> pair = PARSER.parse((Graphics2D) this.getGraphics(), text);
 		this.objectBeanList = pair.getFirst();
 		this.lifelineBeanList = pair.getSecond();
+		resetSize();
 		repaint();
+	}
+
+	/**
+	 * 根据对象的大小充值size
+	 */
+	public void resetSize() {
+		if (objectBeanList == null || objectBeanList.size() == 0) {
+			return;
+		}
+		int tempWidth = 0, tempHeight = 0;
+		for (ObjectBean objectBeanT : objectBeanList) {
+			int beanWidth = objectBeanT.getX() + objectBeanT.getWidth();
+			if (beanWidth > tempWidth) {
+				tempWidth = beanWidth;
+			}
+
+			int beanHeight = objectBeanT.getHeight() + objectBeanT.getHeight() + objectBeanT.getLineLength();
+			if (beanHeight > tempHeight) {
+				tempHeight = beanHeight;
+			}
+		}
+
+		this.width = (int) (tempWidth * scaleX + 1);
+		this.height = (int) (tempHeight * scaleY + 1);
+
+		this.setPreferredSize(new Dimension(width, height));
+		this.revalidate();
 	}
 
 	private void drawSequenceFromBeans(Graphics2D graphics2d, List<ObjectBean> objectBeans,
@@ -183,6 +216,21 @@ public class SequencePanel extends JPanel{
 		this.triangleLength = triangleLength;
 	}
 
+	public void setTransform(double sx, double sy) {
+		this.scaleX = sx;
+		this.scaleY = sy;
+		this.resetSize();
+		this.transform = AffineTransform.getScaleInstance(sx, sy);
+	}
+
+	public int getDefaultFontSize() {
+		return defaultFontSize;
+	}
+
+	public void setDefaultFontSize(int defaultFontSize) {
+		this.defaultFontSize = defaultFontSize;
+	}
+
 	public static void main(String[] args){
 		JFrame jf=new JFrame();
 		SequencePanel sp = new SequencePanel();
@@ -194,7 +242,7 @@ public class SequencePanel extends JPanel{
 		jf.pack();
 
 		Parser parser = new Parser();
-		String testInput = "A->B:text\nA->A:aaaas\nB->C:中文测试\nC-->B:中文测试END";
+		String testInput = "A->B:lsllsl\nA->C:dsdsds";
 		Pair<List<ObjectBean>, List<LifelineBean>> pair = parser.parse((Graphics2D) sp.getGraphics(),
 				testInput);
 		for (ObjectBean objectBean : pair.getFirst()) {
