@@ -3,6 +3,7 @@ package com.sqs.sequence.main;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
@@ -11,12 +12,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -88,6 +92,13 @@ public class MainFrame extends JFrame{
 		MenuItem saveMenuItem = new MenuItem("Save", saveMenuShorcut);
 		saveMenuItem.addActionListener(menuListener);
 		fileMenu.add(saveMenuItem);
+
+		MenuItem saveAsPngMenuItem = new MenuItem("Save As PNG");
+		saveAsPngMenuItem.setActionCommand("SaveAsPNG");
+		saveAsPngMenuItem.addActionListener(menuListener);
+		fileMenu.add(saveAsPngMenuItem);
+
+		fileMenu.addSeparator();
 
 		// open
 		MenuShortcut openMenuShortcut = new MenuShortcut(KeyEvent.VK_O, false);
@@ -209,6 +220,26 @@ public class MainFrame extends JFrame{
 				System.out.println(currentScaleIndex);
 				MainFrame.this.sequencePanel.setTransform(SCALE[currentScaleIndex], SCALE[currentScaleIndex]);
 				MainFrame.this.sequencePanel.repaint();
+			} else if (e.getActionCommand().equals("SaveAsPNG")) {
+				System.out.println("Save As PNG");
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setDialogTitle("Choose a file");
+				int result = fileChooser.showOpenDialog(MainFrame.this);
+				if (result != JFileChooser.APPROVE_OPTION) {
+					return;
+				}
+
+				File saveAsPNGFile = fileChooser.getSelectedFile();
+
+				BufferedImage bufferedImage = new BufferedImage(MainFrame.this.sequencePanel.getWidth(),
+						MainFrame.this.sequencePanel.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				Graphics2D g2d = bufferedImage.createGraphics();
+				sequencePanel.paint(g2d);
+				try {
+					ImageIO.write(bufferedImage, "PNG", saveAsPNGFile);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 		}
 

@@ -3,10 +3,10 @@ package com.sqs.sequence.panel;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
-import java.awt.geom.AffineTransform;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -19,7 +19,7 @@ import com.sqs.sequence.enums.PositionEnum;
 import com.sqs.sequence.server.Parser;
 import com.sqs.sequence.utils.Pair;
 
-public class SequencePanel extends JPanel{
+public class SequencePanel extends JPanel {
 
 	/**
 	 * 
@@ -37,7 +37,7 @@ public class SequencePanel extends JPanel{
 
 	private int triangleLength = DEFAULT_TRIANGLE_LENGTH;
 
-	private AffineTransform transform;
+	// private AffineTransform transform;
 	private double scaleX = 1.0;
 	private double scaleY = 1.0;
 
@@ -72,7 +72,7 @@ public class SequencePanel extends JPanel{
 		System.out.println("Sequence widht:" + width + ",height:" + height);
 	}
 
-	public void drawSequence(String text){
+	public void drawSequence(String text) {
 		this.objectBeanList = null;
 		this.lifelineBeanList = null;
 		Pair<List<ObjectBean>, List<LifelineBean>> pair = PARSER.parse((Graphics2D) this.getGraphics(), text);
@@ -111,24 +111,38 @@ public class SequencePanel extends JPanel{
 
 	private void drawSequenceFromBeans(Graphics2D graphics2d, List<ObjectBean> objectBeans,
 			List<LifelineBean> lifelineBeans) {
+		int currentFontSize = (int) (defaultFontSize * scaleX);
+		if (currentFontSize <= 0) {
+			currentFontSize = 1;
+		}
+
+		Font defaultFont = graphics2d.getFont();
+		Font currentFont = defaultFont.deriveFont(defaultFont.getStyle(), currentFontSize);
+		graphics2d.setFont(currentFont);
+		System.out.println("Font:" + currentFont);
+
 		// draw objectbeans
 		for (ObjectBean objectBeanT : objectBeans) {
-			graphics2d.drawRect(objectBeanT.getX(), objectBeanT.getY(), objectBeanT.getWidth(),
-					objectBeanT.getHeight());
-			graphics2d.drawString(objectBeanT.getText(), objectBeanT.getTextX(), objectBeanT.getTextY());
+			graphics2d.drawRect((int) (objectBeanT.getX() * scaleX), (int) (objectBeanT.getY() * scaleY),
+					(int) (objectBeanT.getWidth() * scaleX), (int) (objectBeanT.getHeight() * scaleY));
+			graphics2d.drawString(objectBeanT.getText(), (int) (objectBeanT.getTextX() * scaleX),
+					(int) (objectBeanT.getTextY() * scaleY));
 
 			// draw line
-			graphics2d.drawLine(objectBeanT.getLineX(), objectBeanT.getLineY(), objectBeanT.getLineX(),
-					objectBeanT.getLineY() + objectBeanT.getLineLength());
+			graphics2d.drawLine((int) (objectBeanT.getLineX() * scaleX), (int) (objectBeanT.getLineY() * scaleY),
+					(int) (objectBeanT.getLineX() * scaleX),
+					(int) ((objectBeanT.getLineY() + objectBeanT.getLineLength()) * scaleY));
 
 			// draw end rec
-			graphics2d.drawRect(objectBeanT.getX(),
-					objectBeanT.getY() + objectBeanT.getLineLength() + objectBeanT.getHeight(), objectBeanT.getWidth(),
-					objectBeanT.getHeight());
+			graphics2d
+					.drawRect((int) (objectBeanT.getX() * scaleX),
+							(int) ((objectBeanT.getY() + objectBeanT.getLineLength() + objectBeanT.getHeight())
+									* scaleY),
+							(int) (objectBeanT.getWidth() * scaleX), (int) (objectBeanT.getHeight() * scaleY));
 
 			// draw end string
-			graphics2d.drawString(objectBeanT.getText(), objectBeanT.getTextX(),
-					objectBeanT.getTextY() + objectBeanT.getLineLength() + objectBeanT.getHeight());
+			graphics2d.drawString(objectBeanT.getText(), (int) (objectBeanT.getTextX() * scaleX),
+					(int) ((objectBeanT.getTextY() + objectBeanT.getLineLength() + objectBeanT.getHeight()) * scaleY));
 		}
 
 		// draw lifelinebeans
@@ -137,6 +151,7 @@ public class SequencePanel extends JPanel{
 			Stroke stroke = null;
 			// 保存系统原有的stroke
 			Stroke defauktStroke = graphics2d.getStroke();
+
 			if (LifelineTypeEnum.SOLID_LINE.equals(lifelineBeanT.getType())) {
 				// 实线
 				stroke = defauktStroke;
@@ -148,16 +163,20 @@ public class SequencePanel extends JPanel{
 
 			if (lifelineBeanT.getFrom().equals(lifelineBeanT.getTo())) {
 				// 如果开头和结尾都指向同一个ObjectBean,需要画三条线
-				graphics2d.drawLine(lifelineBeanT.getStartX(), lifelineBeanT.getStartY(),
-						lifelineBeanT.getEndX(), lifelineBeanT.getStartY());
-				graphics2d.drawLine(lifelineBeanT.getEndX(), lifelineBeanT.getStartY(), lifelineBeanT.getEndX(),
-						lifelineBeanT.getEndY());
-				graphics2d.drawLine(lifelineBeanT.getStartX(), lifelineBeanT.getEndY(), lifelineBeanT.getEndX(),
-						lifelineBeanT.getEndY());
+				graphics2d.drawLine((int) (lifelineBeanT.getStartX() * scaleX),
+						(int) (lifelineBeanT.getStartY() * scaleY), (int) (lifelineBeanT.getEndX() * scaleX),
+						(int) (lifelineBeanT.getStartY() * scaleY));
+				graphics2d.drawLine((int) (lifelineBeanT.getEndX() * scaleX),
+						(int) (lifelineBeanT.getStartY() * scaleY), (int) (lifelineBeanT.getEndX() * scaleX),
+						(int) (lifelineBeanT.getEndY() * scaleY));
+				graphics2d.drawLine((int) (lifelineBeanT.getStartX() * scaleX),
+						(int) (lifelineBeanT.getEndY() * scaleY), (int) (lifelineBeanT.getEndX() * scaleX),
+						(int) (lifelineBeanT.getEndY() * scaleY));
 
 			} else {
-				graphics2d.drawLine(lifelineBeanT.getStartX(), lifelineBeanT.getStartY(), lifelineBeanT.getEndX(),
-						lifelineBeanT.getEndY());
+				graphics2d.drawLine((int) (lifelineBeanT.getStartX() * scaleX),
+						(int) (lifelineBeanT.getStartY() * scaleY), (int) (lifelineBeanT.getEndX() * scaleX),
+						(int) (lifelineBeanT.getEndY() * scaleY));
 			}
 
 			// 设置回系统原有的stroke
@@ -167,11 +186,13 @@ public class SequencePanel extends JPanel{
 			if (PositionEnum.END.equals(lifelineBeanT.getTrianglePosition())) {
 				int line1X = lifelineBeanT.getEndX() - triangleLength;
 				int line1y = lifelineBeanT.getEndY() - triangleLength;
-				graphics2d.drawLine(lifelineBeanT.getEndX(), lifelineBeanT.getEndY(), line1X, line1y);
+				graphics2d.drawLine((int) (lifelineBeanT.getEndX() * scaleX), (int) (lifelineBeanT.getEndY() * scaleY),
+						(int) (line1X * scaleX), (int) (line1y * scaleY));
 
 				int line2x = lifelineBeanT.getEndX() - triangleLength;
 				int line2y = lifelineBeanT.getEndY() + triangleLength;
-				graphics2d.drawLine(lifelineBeanT.getEndX(), lifelineBeanT.getEndY(), line2x, line2y);
+				graphics2d.drawLine((int) (lifelineBeanT.getEndX() * scaleX), (int) (lifelineBeanT.getEndY() * scaleY),
+						(int) (line2x * scaleX), (int) (line2y * scaleY));
 			} else if (lifelineBeanT.getFrom().equals(lifelineBeanT.getTo())) {
 				// 指向自己
 				int pointX = lifelineBeanT.getStartX();
@@ -179,23 +200,28 @@ public class SequencePanel extends JPanel{
 
 				int line1x = pointX + triangleLength;
 				int line1y = pointY - triangleLength;
-				graphics2d.drawLine(pointX, pointY, line1x, line1y);
+				graphics2d.drawLine((int) (pointX * scaleX), (int) (pointY * scaleY), (int) (line1x * scaleX),
+						(int) (line1y * scaleY));
 
 				int line2x = pointX + triangleLength;
 				int line2y = pointY + triangleLength;
-				graphics2d.drawLine(pointX, pointY, line2x, line2y);
+				graphics2d.drawLine((int) (pointX * scaleX), (int) (pointY * scaleY), (int) (line2x * scaleX),
+						(int) (line2y * scaleY));
 			} else {
 				int line1x = lifelineBeanT.getStartX() + triangleLength;
 				int line1y = lifelineBeanT.getStartY() - triangleLength;
-				graphics2d.drawLine(lifelineBeanT.getStartX(), lifelineBeanT.getStartY(), line1x, line1y);
+				graphics2d.drawLine((int) (lifelineBeanT.getStartX() * scaleX),
+						(int) (lifelineBeanT.getStartY() * scaleY), (int) (line1x * scaleX), (int) (line1y * scaleY));
 
 				int line2x = lifelineBeanT.getStartX() + triangleLength;
 				int line2y = lifelineBeanT.getStartY() + triangleLength;
-				graphics2d.drawLine(lifelineBeanT.getStartX(), lifelineBeanT.getStartY(), line2x, line2y);
+				graphics2d.drawLine((int) (lifelineBeanT.getStartX() * scaleX),
+						(int) (lifelineBeanT.getStartY() * scaleY), (int) (line2x * scaleX), (int) (line2y * scaleY));
 			}
 
 			// draw text
-			graphics2d.drawString(lifelineBeanT.getText(), lifelineBeanT.getTextX(), lifelineBeanT.getTextY());
+			graphics2d.drawString(lifelineBeanT.getText(), (int) (lifelineBeanT.getTextX() * scaleX),
+					(int) (lifelineBeanT.getTextY() * scaleY));
 
 		}
 	}
@@ -220,7 +246,7 @@ public class SequencePanel extends JPanel{
 		this.scaleX = sx;
 		this.scaleY = sy;
 		this.resetSize();
-		this.transform = AffineTransform.getScaleInstance(sx, sy);
+		// this.transform = AffineTransform.getScaleInstance(sx, sy);
 	}
 
 	public int getDefaultFontSize() {
@@ -231,8 +257,8 @@ public class SequencePanel extends JPanel{
 		this.defaultFontSize = defaultFontSize;
 	}
 
-	public static void main(String[] args){
-		JFrame jf=new JFrame();
+	public static void main(String[] args) {
+		JFrame jf = new JFrame();
 		SequencePanel sp = new SequencePanel();
 		sp.setPreferredSize(new Dimension(300, 300));
 		sp.setBackground(Color.white);
@@ -243,8 +269,7 @@ public class SequencePanel extends JPanel{
 
 		Parser parser = new Parser();
 		String testInput = "A->B:lsllsl\nA->C:dsdsds";
-		Pair<List<ObjectBean>, List<LifelineBean>> pair = parser.parse((Graphics2D) sp.getGraphics(),
-				testInput);
+		Pair<List<ObjectBean>, List<LifelineBean>> pair = parser.parse((Graphics2D) sp.getGraphics(), testInput);
 		for (ObjectBean objectBean : pair.getFirst()) {
 			System.out.println(objectBean);
 		}
