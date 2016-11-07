@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "svg")
+@XmlRootElement(name = "svg", namespace = "http://www.w3.org/2000/svg")
 public class Svg implements Serializable {
 
 	/**

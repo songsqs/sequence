@@ -35,6 +35,7 @@ public class SvgUtil {
 			Marshaller marshaller = context.createMarshaller();
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+			marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
 
 			StringWriter sw = new StringWriter();
 
