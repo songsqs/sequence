@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -28,6 +29,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import com.sqs.sequence.panel.SequencePanel;
+import com.sqs.sequence.svg.util.SvgUtil;
 
 public class MainFrame extends JFrame{
 
@@ -98,6 +100,11 @@ public class MainFrame extends JFrame{
 		saveAsPngMenuItem.addActionListener(menuListener);
 		fileMenu.add(saveAsPngMenuItem);
 
+		MenuItem saveAsSvgMenuItem = new MenuItem("Save As Svg");
+		saveAsSvgMenuItem.setActionCommand("SaveAsSVG");
+		saveAsSvgMenuItem.addActionListener(menuListener);
+		fileMenu.add(saveAsSvgMenuItem);
+
 		fileMenu.addSeparator();
 
 		// open
@@ -105,6 +112,11 @@ public class MainFrame extends JFrame{
 		MenuItem openMenuItem = new MenuItem("Open", openMenuShortcut);
 		openMenuItem.addActionListener(menuListener);
 		fileMenu.add(openMenuItem);
+
+		MenuItem openFromSvg = new MenuItem("Open from Svg");
+		openFromSvg.setActionCommand("OpenFromSVG");
+		openFromSvg.addActionListener(menuListener);
+		fileMenu.add(openFromSvg);
 
 		Menu viewMenu = new Menu("View");
 
@@ -239,6 +251,43 @@ public class MainFrame extends JFrame{
 					ImageIO.write(bufferedImage, "PNG", saveAsPNGFile);
 				} catch (IOException e1) {
 					e1.printStackTrace();
+				}
+			} else if (e.getActionCommand().equals("SaveAsSVG")) {
+				System.out.println("Save As Svg");
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				fileChooser.setDialogTitle("Choose a file");
+				int result = fileChooser.showOpenDialog(MainFrame.this);
+				if (result != JFileChooser.APPROVE_OPTION) {
+					return;
+				}
+
+				File saveAsSvgFile = fileChooser.getSelectedFile();
+				try (BufferedWriter bw = new BufferedWriter(new FileWriter(saveAsSvgFile))) {
+					String svgXml = SvgUtil.generateSvgString(MainFrame.this.sequencePanel.getObjectBeanList(),
+							MainFrame.this.sequencePanel.getLifelineBeanList(), MainFrame.this.inputArea.getText());
+					bw.write(svgXml);
+					bw.flush();
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			} else if (e.getActionCommand().equals("OpenFromSVG")) {
+				System.out.println("Open from Svg");
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				fileChooser.setDialogTitle("Choose a file");
+				int result = fileChooser.showOpenDialog(MainFrame.this);
+				if (result != JFileChooser.APPROVE_OPTION) {
+					return;
+				}
+
+				File svgFile = fileChooser.getSelectedFile();
+				try (FileInputStream inputStream = new FileInputStream(svgFile)) {
+					String text = SvgUtil.getSourceTextFromSvg(inputStream);
+					MainFrame.this.inputArea.setText(text);
+					MainFrame.this.sequencePanel.drawSequence(text);
+				} catch (Exception e2) {
+					e2.printStackTrace();
 				}
 			}
 		}

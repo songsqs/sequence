@@ -257,6 +257,22 @@ public class SequencePanel extends JPanel {
 		this.defaultFontSize = defaultFontSize;
 	}
 
+	public List<ObjectBean> getObjectBeanList() {
+		return objectBeanList;
+	}
+
+	public void setObjectBeanList(List<ObjectBean> objectBeanList) {
+		this.objectBeanList = objectBeanList;
+	}
+
+	public List<LifelineBean> getLifelineBeanList() {
+		return lifelineBeanList;
+	}
+
+	public void setLifelineBeanList(List<LifelineBean> lifelineBeanList) {
+		this.lifelineBeanList = lifelineBeanList;
+	}
+
 	public static void main(String[] args) {
 		JFrame jf = new JFrame();
 		SequencePanel sp = new SequencePanel();

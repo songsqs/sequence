@@ -22,6 +22,12 @@ public class Path implements Serializable {
 	@XmlAttribute(name = "d")
 	private String d;
 
+	@XmlAttribute(name = "stroke-dasharray")
+	private String strokeDasharray = "0,0";
+
+	@XmlAttribute(name = "fill")
+	private String fill = "none";
+
 	public String getStroke() {
 		return stroke;
 	}
@@ -36,5 +42,21 @@ public class Path implements Serializable {
 
 	public void setD(String d) {
 		this.d = d;
+	}
+
+	public String getStrokeDasharray() {
+		return strokeDasharray;
+	}
+
+	public void setStrokeDasharray(String strokeDasharray) {
+		this.strokeDasharray = strokeDasharray;
+	}
+
+	public String getFill() {
+		return fill;
+	}
+
+	public void setFill(String fill) {
+		this.fill = fill;
 	}
 }

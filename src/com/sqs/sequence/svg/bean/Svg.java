@@ -35,7 +35,7 @@ public class Svg implements Serializable {
 	private String source;
 
 	@XmlElement(name = "rect")
-	private List<Rect> rescList;
+	private List<Rect> rectList;
 
 	@XmlElement(name = "text")
 	private List<Text> textList;
@@ -83,12 +83,12 @@ public class Svg implements Serializable {
 		this.source = source;
 	}
 
-	public List<Rect> getRescList() {
-		return rescList;
+	public List<Rect> getRectList() {
+		return rectList;
 	}
 
-	public void setRescList(List<Rect> rescList) {
-		this.rescList = rescList;
+	public void setRectList(List<Rect> rectList) {
+		this.rectList = rectList;
 	}
 
 	public List<Text> getTextList() {
