@@ -28,6 +28,7 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import com.sqs.sequence.panel.LineNumberHeaderView;
 import com.sqs.sequence.panel.SequencePanel;
 import com.sqs.sequence.svg.util.SvgUtil;
 
@@ -78,6 +79,7 @@ public class MainFrame extends JFrame{
 		inputJsp = new JScrollPane(inputArea);
 		inputJsp.setPreferredSize(new Dimension(600, 150));
 		inputJsp.setBorder(BorderFactory.createTitledBorder("请输入"));
+		inputJsp.setRowHeaderView(new LineNumberHeaderView());
 
 		this.getContentPane().add(spJsp, BorderLayout.CENTER);
 		this.getContentPane().add(inputJsp, BorderLayout.SOUTH);
