@@ -128,7 +128,7 @@ public class SvgUtil {
 		Path path = new Path();
 
 		if (lifelineBean.getFrom().equals(lifelineBean.getTo())) {
-			path.setD("M" + lifelineBean.getStartX() + "," + lifelineBean.getEndX() + "L" + lifelineBean.getStartX()
+			path.setD("M" + lifelineBean.getStartX() + "," + lifelineBean.getStartY() + "L" + lifelineBean.getEndX()
 					+ "," + lifelineBean.getStartY() + "L" + lifelineBean.getEndX() + "," + lifelineBean.getEndY() + "L"
 					+ lifelineBean.getStartX() + "," + lifelineBean.getEndY());
 		} else {
