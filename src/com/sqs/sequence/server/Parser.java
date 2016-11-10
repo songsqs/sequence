@@ -67,7 +67,6 @@ public class Parser {
 		this.lifelinebean_padding_bottom = lifelinePadding;
 	}
 
-
 	/**
 	 * 解析输入字符串
 	 * 
@@ -115,7 +114,7 @@ public class Parser {
 
 		parsePhase4(lifelineBeanList, objectBeanList);
 
-		parsePhase5(objectBeanList);
+		parsePhase5(objectBeanList, lifelineBeanList);
 
 		parsePhase3(objectBeanList);
 
@@ -138,8 +137,7 @@ public class Parser {
 	 * @param lifelineBeanlist
 	 */
 	private void parsePhase1(Graphics2D graphics2d, String input, Map<String, ObjectBean> objectBeanMap,
-			List<ObjectBean> objectBeanList,
-			List<LifelineBean> lifelineBeanList, boolean ignoreError) {
+			List<ObjectBean> objectBeanList, List<LifelineBean> lifelineBeanList, boolean ignoreError) {
 
 		FontMetrics fm = graphics2d.getFontMetrics();
 
@@ -224,6 +222,11 @@ public class Parser {
 			this.initLifelineBean(lifelineBean, fm, graphics2d);
 			lifelineBeanList.add(lifelineBean);
 		}
+
+		System.out.println("phase1-----------------------------------------");
+		System.out.println(objectBeanList);
+		System.out.println(lifelineBeanList);
+		System.out.println("phase1-----------------------------------------");
 	}
 
 	/**
@@ -371,6 +374,10 @@ public class Parser {
 			objectbeanT.setTextY(objectbeanT.getY() + objectbean_padding_top);
 		}
 
+		System.out.println("phase2-----------------------------------------");
+		System.out.println(objectBeanList);
+		System.out.println(lifelineBeanList);
+		System.out.println("phase2-----------------------------------------");
 	}
 
 	/**
@@ -385,6 +392,10 @@ public class Parser {
 			objectbeanT.setLineX(objectbeanT.getX() + objectbeanT.getWidth() / 2);
 			objectbeanT.setLineY(objectbeanT.getY() + objectbeanT.getHeight());
 		}
+
+		System.out.println("phase3-----------------------------------------");
+		System.out.println(objectBeanList);
+		System.out.println("phase3-----------------------------------------");
 	}
 
 	/**
@@ -399,7 +410,7 @@ public class Parser {
 		if (objectBeanList.size() <= 0) {
 			return;
 		}
-		int objectBeanHeight=objectBeanList.get(0).getHeight()+objectBeanList.get(0).getY();
+		int objectBeanHeight = objectBeanList.get(0).getHeight() + objectBeanList.get(0).getY();
 		height += objectBeanHeight;
 		for (LifelineBean lifelinebeanT : lifelineBeanList) {
 			if (lifelinebeanT.getFrom().equals(lifelinebeanT.getTo())) {
@@ -436,6 +447,11 @@ public class Parser {
 			objectBeanT.setLineLength(height - objectBeanHeight);
 		}
 
+		System.out.println("phase4-----------------------------------------");
+		System.out.println(objectBeanList);
+		System.out.println(lifelineBeanList);
+		System.out.println("phase4-----------------------------------------");
+
 	}
 
 	/**
@@ -444,27 +460,89 @@ public class Parser {
 	 * 解决A->B A->C的情况下x坐标不正确的问题
 	 * 
 	 * @param objectBeanList
+	 * @param lifelineBeanList
 	 */
-	private void parsePhase5(List<ObjectBean> objectBeanList) {
+	private void parsePhase5(List<ObjectBean> objectBeanList, List<LifelineBean> lifelineBeanList) {
 		if (objectBeanList.size() < 2) {
 			// 只有一个ObjectBean
 			return;
 		}
+
+		// 用于存储A->B类型的距离
+		Map<Pair<ObjectBean, ObjectBean>, Integer> distanceMap = new HashMap<>();
+		// 用于存储A->A类型的距离
+		Map<ObjectBean, Integer> widthMap = new HashMap<>();
+
+		for (LifelineBean lifelineBeanT : lifelineBeanList) {
+			if (lifelineBeanT.getFrom().equals(lifelineBeanT.getTo())) {
+				int circleWidth = lifelineBeanT.getWidth();
+				if (widthMap.get(lifelineBeanT.getFrom()) == null
+						|| widthMap.get(lifelineBeanT.getFrom()).intValue() < circleWidth) {
+					widthMap.put(lifelineBeanT.getFrom(), circleWidth);
+				}
+			} else {
+				Pair<ObjectBean, ObjectBean> pair = new Pair<>();
+				if (lifelineBeanT.getFrom().getOrder() < lifelineBeanT.getTo().getOrder()) {
+					pair.setFirst(lifelineBeanT.getFrom());
+					pair.setSecond(lifelineBeanT.getTo());
+				} else {
+					pair.setFirst(lifelineBeanT.getTo());
+					pair.setSecond(lifelineBeanT.getFrom());
+				}
+				int distince = lifelineBeanT.getWidth() + pair.getFirst().getWidth() / 2
+						- pair.getSecond().getWidth() / 2;
+				if (distanceMap.get(pair) == null || distanceMap.get(pair).intValue() < distince) {
+					distanceMap.put(pair, distince);
+				}
+			}
+		}
+
 		List<ObjectBean> tempObjectBeanList = new ArrayList<>(objectBeanList);
 		Collections.sort(tempObjectBeanList, new ObjectBeanComparator());
 		ObjectBean preObjectBean = tempObjectBeanList.get(0);
 		for (int i = 1; i < tempObjectBeanList.size(); i++) {
 			ObjectBean objectBeanT = tempObjectBeanList.get(i);
-			if (objectBeanT.getX() > preObjectBean.getX() + preObjectBean.getWidth()) {
+
+			int circleWidth = widthMap.get(preObjectBean) == null ? 0 : widthMap.get(preObjectBean).intValue();
+			circleWidth += objectbean_padding;
+
+			Pair<ObjectBean, ObjectBean> pair = new Pair<ObjectBean, ObjectBean>(preObjectBean, objectBeanT);
+			int distance = distanceMap.get(pair) == null ? 0 : distanceMap.get(pair).intValue();
+
+			int width = preObjectBean.getWidth() + objectbean_padding;
+
+			int currentWidth = 0;
+
+			if (circleWidth > width) {
+				if (distance > circleWidth) {
+					currentWidth = distance;
+				} else {
+					currentWidth = circleWidth;
+				}
+			} else {
+				if (distance > width) {
+					currentWidth = distance;
+				} else {
+					currentWidth = width;
+				}
+			}
+
+
+			if (objectBeanT.getX() > preObjectBean.getX() + width) {
 				preObjectBean = objectBeanT;
 				continue;
 			}
 
-			objectBeanT.setX(preObjectBean.getX() + preObjectBean.getWidth() + objectbean_padding);
+			objectBeanT.setX(preObjectBean.getX() + currentWidth);
 			objectBeanT.setTextX(objectBeanT.getX() + objectbean_padding_left);
 			objectBeanT.setTextY(objectBeanT.getY() + objectbean_padding_top);
 			preObjectBean = objectBeanT;
 		}
+
+		System.out.println("phase5-----------------------------------------");
+		System.out.println(objectBeanList);
+		System.out.println(lifelineBeanList);
+		System.out.println("phase5-----------------------------------------");
 	}
 
 	public int getObjectbean_padding_left() {
